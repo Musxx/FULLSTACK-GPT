@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import time
 from langchain.chat_models import ChatOpenAI
@@ -18,6 +19,15 @@ st.set_page_config(
     page_title="DocumentGPT",
     page_icon="📄",
 )
+
+with st.sidebar:
+    api_key = st.text_input("OpenAI API Key", type="password")
+
+if api_key:
+    os.environ["OPENAI_API_KEY"] = api_key
+else:
+    st.warning("OpenAI API Key를 입력하세요.")
+    st.stop()
 
 # # 하는 역할 : DocumentGPT 페이지를 생성하고, 사용자와의 채팅 인터페이스를 제공하여 문서 관련 질문에 답변합니다.
 # st.title("Home Page")

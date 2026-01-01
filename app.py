@@ -12,24 +12,17 @@ import os
 import streamlit as st
 
 with st.sidebar:
-    user_api_key = st.text_input(
-        "OpenAI API Key",
-        type="default",
-        placeholder="sk-..."
-    )
+    api_key = st.text_input("OpenAI API Key", type="password")
+
+if api_key:
+    os.environ["OPENAI_API_KEY"] = api_key
+else:
+    st.warning("OpenAI API Key를 입력하세요.")
+    st.stop()
 
 with st.sidebar: st.markdown(
       st.markdown("[👉 프로젝트 링크](https://github.com/Musxx/FULLSTACK-GPT/commit/28bf83fb24e11d023e48c81de5d70001bcf722cb)")
-)   
-
-# 1️⃣ 사용자가 입력했으면 → 그걸 사용
-if user_api_key:
-    os.environ["OPENAI_API_KEY"] = user_api_key
-
-# 2️⃣ 안 했으면 → secrets 값 사용
-else:
-    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-
+) 
 
 st.title("Here are the apps I made:")
 
