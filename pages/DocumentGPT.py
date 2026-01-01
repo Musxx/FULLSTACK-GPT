@@ -29,6 +29,10 @@ with st.sidebar:
         placeholder="sk-..."
     )
 
+with st.sidebar: st.markdown(
+      st.markdown("[👉 프로젝트 링크](https://github.com/Musxx/FULLSTACK-GPT/commit/28bf83fb24e11d023e48c81de5d70001bcf722cb)")
+)   
+
 # 1️⃣ 사용자가 입력했으면 → 그걸 사용
 if user_api_key:
     os.environ["OPENAI_API_KEY"] = user_api_key
