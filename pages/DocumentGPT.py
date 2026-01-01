@@ -26,7 +26,7 @@ with st.sidebar:
 if api_key:
     os.environ["OPENAI_API_KEY"] = api_key
 else:
-    st.warning("OpenAI API Key를 입력하세요.")
+    st.info("OpenAI API Key를 입력하세요.")
     st.stop()
 
 # # 하는 역할 : DocumentGPT 페이지를 생성하고, 사용자와의 채팅 인터페이스를 제공하여 문서 관련 질문에 답변합니다.
@@ -108,23 +108,45 @@ Welcome to the DocumentGPT page! Here, you can interact with the DocumentGPT mod
 file = st.file_uploader("Upload a document", type=["pdf", "docx", "txt"])
 
 # 하는 역할 : 채팅 메시지를 화면에 표시하고, 세션 상태에 저장하는 함수입니다.
-@st.cache_data(show_spinner="Reading document...")
-def load_and_split(file):
-    file_content = file.read()
-    file_path = f"./.cache/files/{file.name}"
+# @st.cache_data(show_spinner="Reading document...")
+# def load_and_split(file):
+#     file_content = file.read()
+#     file_dir = f"./.cache/files/{file.name}"
+#     os.makedirs(file_dir, exist_ok=True)
+#     file_path = f"{file_dir}/{file.name}"
+#     with open(file_path, "wb") as f:
+#         f.write(file_content)
+
+#     # 하는 역할 :문서 로더 및 텍스트 분할기 인스턴스 생성
+#     loader = UnstructuredFileLoader(file_path)
+
+#     #  하는 역할 :텍스트 분할기 설정
+#     splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(chunk_size=1000, chunk_overlap=200)
+
+#     # 하는 역할 :문서 로드 및 분할
+#     documents = loader.load_and_split(text_splitter=splitter)
+#     texts = splitter.split_documents(documents)
+
+#     return texts
+
+# @st.cache_data(show_spinner="Reading document...")
+def load_and_split(file_name: str, file_bytes: bytes):
+    base_dir = "./.cache/files"
+    os.makedirs(base_dir, exist_ok=True)
+
+    file_path = os.path.join(base_dir, file_name)
+
     with open(file_path, "wb") as f:
-        f.write(file_content)
+        f.write(file_bytes)
 
-    # 하는 역할 :문서 로더 및 텍스트 분할기 인스턴스 생성
     loader = UnstructuredFileLoader(file_path)
+    splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=1000,
+        chunk_overlap=200,
+    )
 
-    #  하는 역할 :텍스트 분할기 설정
-    splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(chunk_size=1000, chunk_overlap=200)
-
-    # 하는 역할 :문서 로드 및 분할
-    documents = loader.load_and_split(text_splitter=splitter)
+    documents = loader.load()
     texts = splitter.split_documents(documents)
-
     return texts
 
 
@@ -149,10 +171,12 @@ def chat_history():
         send_message(message["content"],message["role"],save=False)
 
 # 하는 역할 :임베딩 생성 및 검색기 빌드 함수
-@st.cache_resource(show_spinner="Embedding document...")
+# @st.cache_resource(show_spinner="Embedding document...")
 def build_retriever(texts,file_name):
     # 하는 역할 :로컬 파일 스토어 인스턴스 생성
-    storage = LocalFileStore(f"./.cache/embeddings/{file_name}/") 
+    emb_dir = (f"./.cache/embeddings/{file_name}/") 
+    os.makedirs(emb_dir, exist_ok=True)
+    storage = LocalFileStore(emb_dir)
 
     # 하는 역할 :임베딩 모델 인스턴스 생성
     embeddings = OpenAIEmbeddings()
@@ -182,7 +206,7 @@ prompt = ChatPromptTemplate.from_messages([
 
 # 하는 역할 :문서가 업로드되면, 문서를 로드하고 분할한 후, 임베딩을 생성하고 검색기를 빌드합니다. 이후, 사용자의 질문에 대해 답변을 생성합니다.
 if file:
-    texts=load_and_split(file)
+    texts = load_and_split(file.name, file.getvalue())
     retriever = build_retriever(texts,file.name)
     chat_history()
     message = st.chat_input("Ask me anything about the document you uploaded...")   
