@@ -21,7 +21,7 @@ st.set_page_config(
 )
 
 with st.sidebar:
-    api_key = st.text_input("OpenAI API Key", type="password")
+    api_key = st.text_input("OpenAI API Key", type="default")
 
 if api_key:
     os.environ["OPENAI_API_KEY"] = api_key
