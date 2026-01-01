@@ -19,28 +19,6 @@ st.set_page_config(
     page_icon="📄",
 )
 
-import os
-import streamlit as st
-
-with st.sidebar:
-    user_api_key = st.text_input(
-        "OpenAI API Key",
-        type="default",
-        placeholder="sk-..."
-    )
-
-with st.sidebar: st.markdown(
-      st.markdown("[👉 프로젝트 링크](https://github.com/Musxx/FULLSTACK-GPT/commit/28bf83fb24e11d023e48c81de5d70001bcf722cb)")
-)   
-
-# 1️⃣ 사용자가 입력했으면 → 그걸 사용
-if user_api_key:
-    os.environ["OPENAI_API_KEY"] = user_api_key
-
-# 2️⃣ 안 했으면 → secrets 값 사용
-else:
-    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-
 # # 하는 역할 : DocumentGPT 페이지를 생성하고, 사용자와의 채팅 인터페이스를 제공하여 문서 관련 질문에 답변합니다.
 # st.title("Home Page")
 # st.write("Welcome to the Home Page of our Streamlit application!")
