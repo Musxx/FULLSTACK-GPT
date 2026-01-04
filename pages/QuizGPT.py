@@ -46,7 +46,7 @@ with st.sidebar:
     # 하는 역할 : GitHub 리포지토리 링크 표시
     st.markdown(
         "🔗 **GitHub Repository**  \n"
-        "[https://github.com/yourname/quizgpt](https://github.com/yourname/quizgpt)"
+        "[https://github.com/Musxx/FULLSTACK-GPT/commit/4bd465b8fdc2c46dc1dcbe74f2d069feb1eee001)"
     )
 
 
