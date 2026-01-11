@@ -9,7 +9,7 @@ st.sidebar.title("설정")
 api_key = st.sidebar.text_input("OpenAI API Key", type="password")
 
 st.sidebar.markdown(
-    "[📂 GitHub Repository](https://github.com/your-name/your-repo)"
+    "[📂 GitHub Repository](https://github.com/Musxx/FULLSTACK-GPT/commit/824754dcaae42cc05b0ba60d5cd831b1836f24bb)"
 )
 
 if not api_key:
