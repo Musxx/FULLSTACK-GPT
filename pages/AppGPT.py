@@ -1,83 +1,53 @@
 import streamlit as st
 import openai
-import time
 
 st.set_page_config(page_title="Investor Assistant")
 
-# --- Sidebar ---
+# Sidebar
 st.sidebar.title("설정")
 api_key = st.sidebar.text_input("OpenAI API Key", type="password")
 
 st.sidebar.markdown(
-    "[📂 GitHub Repository](https://github.com/Musxx/FULLSTACK-GPT/commit/39766ab5372e667e17be7cb3d2e5c2ac56b575af)"
+    "[📂 GitHub Repository](https://github.com/Musxx/FULLSTACK-GPT)"
 )
 
 if not api_key:
-    st.warning("API Key를 입력하세요.")
     st.stop()
 
 openai.api_key = api_key
 
-# --- Assistant 생성 ---
-if "assistant" not in st.session_state:
-    st.session_state.assistant = openai.beta.assistants.create(
-        name="Investor Assistant",
-        instructions="You are an investor assistant that analyzes stocks.",
-        model="gpt-4-0613"
-    )
-
-# --- Thread 생성 ---
-if "thread" not in st.session_state:
-    st.session_state.thread = openai.beta.threads.create()
-
 st.title("📈 Investor Assistant")
 
-# --- 메시지 기록 ---
+# Session state
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = [
+        {
+            "role": "system",
+            "content": "You are an investor assistant that analyzes stocks."
+        }
+    ]
 
-for msg in st.session_state.messages:
+# Display history
+for msg in st.session_state.messages[1:]:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# --- 유저 입력 ---
+# User input
 prompt = st.chat_input("질문을 입력하세요")
 
 if prompt:
-    # UI 표시
     st.session_state.messages.append(
         {"role": "user", "content": prompt}
     )
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Thread에 메시지 추가
-    openai.beta.threads.messages.create(
-        thread_id=st.session_state.thread.id,
-        role="user",
-        content=prompt
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=st.session_state.messages
     )
 
-    # Run 실행
-    run = openai.beta.threads.runs.create(
-        thread_id=st.session_state.thread.id,
-        assistant_id=st.session_state.assistant.id
-    )
-
-    # Run 완료 대기
-    while run.status != "completed":
-        time.sleep(0.5)
-        run = openai.beta.threads.runs.retrieve(
-            thread_id=st.session_state.thread.id,
-            run_id=run.id
-        )
-
-    # Assistant 응답 가져오기
-    messages = openai.beta.threads.messages.list(
-        thread_id=st.session_state.thread.id
-    )
-
-    answer = messages.data[0].content[0].text.value
+    answer = response.choices[0].message.content
 
     st.session_state.messages.append(
         {"role": "assistant", "content": answer}
